@@ -1,4 +1,6 @@
 from config import *
+from sklearn.utils.class_weight import compute_class_weight
+import numpy as np
 from data_loader import create_data_generators, load_data
 from model import create_model
 import tensorflow as tf
@@ -31,6 +33,15 @@ def train():
         )
     ]
     
+    # Calculate class weights
+    y_train = np.array([0 if x.label[0] == 0 else 1 for x in train_generator])
+    class_weights = compute_class_weight(
+    'balanced',
+    classes=np.unique(y_train),
+    y=y_train
+    )
+    class_weight_dict = dict(enumerate(class_weights))
+
     # Train model
     history = model.fit(
         train_generator,
