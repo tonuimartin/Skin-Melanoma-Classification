@@ -1,4 +1,5 @@
+import sys
+print(f"Python version: {sys.version}")
+
 import tensorflow as tf
-import keras
-print(tf.__version__)
-print(keras.__version__)
+print(f"TensorFlow version: {tf.__version__}")

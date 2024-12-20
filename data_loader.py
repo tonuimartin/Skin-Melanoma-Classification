@@ -1,4 +1,4 @@
-from keras_preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator
 from config import *
 
 def create_data_generators():

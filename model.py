@@ -1,10 +1,10 @@
 import tensorflow as tf
 from keras import layers, models
-from  keras_applications import resnet50
+from keras.applications import ResNet50
 from config import *
 
 def create_model():
-    base_model = resnet50(
+    base_model = ResNet50(
         weights='imagenet',
         include_top=False,
         input_shape=(IMG_HEIGHT, IMG_WIDTH, 3)
