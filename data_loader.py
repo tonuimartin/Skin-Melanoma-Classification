@@ -3,15 +3,18 @@ from config import *
 
 def create_data_generators():
     train_datagen = ImageDataGenerator(
-        rescale=1./255,
-        rotation_range=20,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        horizontal_flip=True,
-        vertical_flip=True,
-        fill_mode='nearest',
-        validation_split=VALIDATION_SPLIT
-    )
+    rescale=1./255,
+    rotation_range=40,  # Increase rotation range
+    width_shift_range=0.3,  # Increase shift range
+    height_shift_range=0.3,
+    shear_range=0.2,  # Add shearing
+    zoom_range=0.2,   # Add zooming
+    horizontal_flip=True,
+    vertical_flip=True,
+    fill_mode='nearest',
+    brightness_range=[0.7,1.3],  # Add brightness variation
+    validation_split=VALIDATION_SPLIT
+)
     
     test_datagen = ImageDataGenerator(rescale=1./255)
     
