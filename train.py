@@ -34,20 +34,38 @@ def train():
     ]
     
     # Calculate class weights
-    y_train = np.array([0 if x.label[0] == 0 else 1 for x in train_generator])
+    labels = []
+    # Reset the generator to the beginning
+    train_generator.reset()
+    
+    # Get the number of samples
+    num_samples = train_generator.samples
+    num_batches = int(np.ceil(num_samples / BATCH_SIZE))
+    
+    # Collect all labels
+    for _ in range(num_batches):
+        _, batch_labels = next(train_generator)
+        labels.extend(batch_labels)
+    
+    labels = np.array(labels)
+    
     class_weights = compute_class_weight(
-    'balanced',
-    classes=np.unique(y_train),
-    y=y_train
+        'balanced',
+        classes=np.unique(labels),
+        y=labels
     )
     class_weight_dict = dict(enumerate(class_weights))
 
-    # Train model
+    # Reset generator again before training
+    train_generator.reset()
+
+    # Train model with class weights
     history = model.fit(
         train_generator,
         epochs=EPOCHS,
         validation_data=validation_generator,
-        callbacks=callbacks
+        callbacks=callbacks,
+        class_weight=class_weight_dict
     )
     
     return model, history
