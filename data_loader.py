@@ -1,20 +1,21 @@
+# data_loader.py
 from keras.preprocessing.image import ImageDataGenerator
 from config import *
 
 def create_data_generators():
     train_datagen = ImageDataGenerator(
-    rescale=1./255,
-    rotation_range=40,  # Increase rotation range
-    width_shift_range=0.3,  # Increase shift range
-    height_shift_range=0.3,
-    shear_range=0.2,  # Add shearing
-    zoom_range=0.2,   # Add zooming
-    horizontal_flip=True,
-    vertical_flip=True,
-    fill_mode='nearest',
-    brightness_range=[0.7,1.3],  # Add brightness variation
-    validation_split=VALIDATION_SPLIT
-)
+        rescale=1./255,
+        rotation_range=ROTATION_RANGE,
+        width_shift_range=SHIFT_RANGE,
+        height_shift_range=SHIFT_RANGE,
+        zoom_range=ZOOM_RANGE,
+        horizontal_flip=HORIZONTAL_FLIP,
+        vertical_flip=VERTICAL_FLIP,
+        fill_mode='reflect',  # Changed to reflect for better border handling
+        brightness_range=BRIGHTNESS_RANGE,
+        validation_split=VALIDATION_SPLIT,
+        preprocessing_function=None  # Can add custom preprocessing if needed
+    )
     
     test_datagen = ImageDataGenerator(rescale=1./255)
     
@@ -26,7 +27,8 @@ def load_data(train_datagen, test_datagen):
         target_size=(IMG_HEIGHT, IMG_WIDTH),
         batch_size=BATCH_SIZE,
         class_mode='binary',
-        subset='training'
+        subset='training',
+        shuffle=True
     )
     
     validation_generator = train_datagen.flow_from_directory(
@@ -34,14 +36,16 @@ def load_data(train_datagen, test_datagen):
         target_size=(IMG_HEIGHT, IMG_WIDTH),
         batch_size=BATCH_SIZE,
         class_mode='binary',
-        subset='validation'
+        subset='validation',
+        shuffle=True
     )
     
     test_generator = test_datagen.flow_from_directory(
         TEST_PATH,
         target_size=(IMG_HEIGHT, IMG_WIDTH),
         batch_size=BATCH_SIZE,
-        class_mode='binary'
+        class_mode='binary',
+        shuffle=False  # No shuffling for test data
     )
     
     return train_generator, validation_generator, test_generator
