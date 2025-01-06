@@ -1,7 +1,6 @@
-# model.py
 import tensorflow as tf
 from keras import layers, models
-from keras.applications import ResNet50V2  # Using ResNet50V2 for better performance
+from keras.applications import ResNet50V2
 from config import *
 
 def create_model():

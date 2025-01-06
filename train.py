@@ -1,4 +1,3 @@
-# train.py
 from config import *
 from data_loader import create_data_generators, load_data
 from model import create_model
@@ -27,19 +26,18 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
     # Creation of data generators
     train_datagen, test_datagen = create_data_generators()
     
-    # Load data
+    # Loading data
     train_generator, validation_generator, test_generator = load_data(
         train_datagen, test_datagen
     )
     
-    # Create and compile model
+    # Creating and compiling model
     model, base_model = create_model()
     
     # Determine training phase and checkpoint
     training_state = load_training_state() if resume_from_checkpoint else None
     current_phase = force_start_phase or (training_state['current_phase'] if training_state else 1)
     
-    # Checkpoint selection logic
     if current_phase == 1:
         checkpoint_path = 'best_first_phase.h5'
         print("Starting/Resuming First Training Phase")
@@ -162,9 +160,8 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
     return model, history1, history2
 
 if __name__ == "__main__":
-    # Option to resume from a specific checkpoint
     model, history1, history2 = train(
-        resume_from_checkpoint=True  # You can set this to False if you want to start from scratch
+        resume_from_checkpoint=True  
     )
     
     # Saving model in tflite format for mobile deployment with optimization

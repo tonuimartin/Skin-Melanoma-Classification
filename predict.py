@@ -34,12 +34,12 @@ class MelanomaPredictor:
             # Loading and resizing image
             img = Image.open(image_path)
             img = img.resize((IMG_WIDTH, IMG_HEIGHT))
-            img = img.convert('RGB')  # Ensure image is RGB
+            img = img.convert('RGB')
             
             # Converting to array and preprocessing
             img_array = np.array(img)
             img_array = img_array.astype('float32')
-            img_array /= 255.0  # Normalize to [0,1]
+            img_array /= 255.0  
             
             return np.expand_dims(img_array, axis=0)
         
@@ -57,14 +57,12 @@ class MelanomaPredictor:
             dict: Prediction results including class and confidence
         """
         try:
-            # Error handling for path existance
             if not os.path.exists(image_path):
                 raise FileNotFoundError(f"Image file not found: {image_path}")
             
             # Preprocessing image
             preprocessed_img = self.preprocess_image(image_path)
             
-            # Prediction
             prediction = self.model.predict(preprocessed_img)[0][0]
             
             # Getting confidence and predicted class
@@ -74,7 +72,7 @@ class MelanomaPredictor:
             return {
                 'filename': os.path.basename(image_path),
                 'predicted_class': predicted_class,
-                'confidence': float(confidence * 100),  # Convert to percentage
+                'confidence': float(confidence * 100),  
                 'raw_prediction': float(prediction)
             }
             
@@ -178,7 +176,7 @@ class MelanomaPredictor:
             print("\nClassification Report:")
             print(classification_report(true_labels, predicted_labels, labels=self.class_names))
             
-            # Print confusion matrix interpretation
+            # Printing of confusion matrix interpretation
             tn, fp, fn, tp = conf_matrix.ravel()
             print("\nConfusion Matrix Interpretation:")
             print(f"True Negatives (Correct Benign): {tn}")
@@ -216,7 +214,6 @@ def main():
         
         predictor = MelanomaPredictor(args.model)
         
-        # Make prediction(s)
         if args.evaluate:
             print("\nPerforming Test Directory Evaluation:")
             results, _, _ = predictor.evaluate_test_directory(args.input_path)

@@ -1,4 +1,3 @@
-# data_loader.py
 from keras.preprocessing.image import ImageDataGenerator
 from config import *
 

@@ -58,16 +58,13 @@ def run_evaluation(predictor):
         print(f"Error with evaluation: {str(e)}")
 
 def main():
-    # Initialize the predictor
+   
     predictor = MelanomaPredictor(model_path=MODEL_PATH)
     
-    # 1. Run single image prediction
     run_single_prediction(predictor)
-    
-    # 2. Run batch prediction
+
     run_batch_prediction(predictor)
     
-    # 3. Run full evaluation with confusion matrix
     run_evaluation(predictor)
 
 if __name__ == "__main__":
