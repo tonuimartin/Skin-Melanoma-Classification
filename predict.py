@@ -31,12 +31,12 @@ class MelanomaPredictor:
             numpy.ndarray: Preprocessed image
         """
         try:
-            # Load and resize image
+            # Loading and resizing image
             img = Image.open(image_path)
             img = img.resize((IMG_WIDTH, IMG_HEIGHT))
             img = img.convert('RGB')  # Ensure image is RGB
             
-            # Convert to array and preprocess
+            # Converting to array and preprocessing
             img_array = np.array(img)
             img_array = img_array.astype('float32')
             img_array /= 255.0  # Normalize to [0,1]
@@ -57,17 +57,17 @@ class MelanomaPredictor:
             dict: Prediction results including class and confidence
         """
         try:
-            # Verify file exists
+            # Error handling for path existance
             if not os.path.exists(image_path):
                 raise FileNotFoundError(f"Image file not found: {image_path}")
             
-            # Preprocess image
+            # Preprocessing image
             preprocessed_img = self.preprocess_image(image_path)
             
-            # Make prediction
+            # Prediction
             prediction = self.model.predict(preprocessed_img)[0][0]
             
-            # Get confidence and class
+            # Getting confidence and predicted class
             confidence = prediction if prediction >= 0.5 else 1 - prediction
             predicted_class = self.class_names[1] if prediction >= 0.5 else self.class_names[0]
             
@@ -95,7 +95,7 @@ class MelanomaPredictor:
         results = []
         
         try:
-            # Get all image files in directory
+            # Getting all image files in the directory
             image_files = [
                 f for f in Path(image_dir).iterdir()
                 if f.suffix.lower() in supported_formats
@@ -104,7 +104,7 @@ class MelanomaPredictor:
             if not image_files:
                 raise Exception(f"No supported images found in {image_dir}")
             
-            # Process each image
+            # Processing each image
             for image_path in image_files:
                 try:
                     result = self.predict_single(str(image_path))
@@ -135,25 +135,24 @@ class MelanomaPredictor:
         results_list = []
         
         try:
-            # Process each class directory
+            # Processing of each class directory
             for class_name in self.class_names:
                 class_dir = os.path.join(test_dir, class_name)
                 if not os.path.exists(class_dir):
                     raise Exception(f"Class directory not found: {class_dir}")
                 
-                # Get all images in the class directory
+                # Getting all images in the class directory
                 image_files = [
                     f for f in Path(class_dir).iterdir()
                     if f.suffix.lower() in supported_formats
                 ]
                 
-                # Process each image
+                # Processing each image in the directory
                 for image_path in image_files:
                     try:
                         result = self.predict_single(str(image_path))
                         results_list.append(result)
                         
-                        # Add to labels lists
                         true_labels.append(class_name)
                         predicted_labels.append(result['predicted_class'])
                         
@@ -161,12 +160,12 @@ class MelanomaPredictor:
                         print(f"Warning: Failed to process {image_path}: {str(e)}")
                         continue
             
-            # Calculate metrics
+            # Calculation of metrics
             conf_matrix = confusion_matrix(true_labels, predicted_labels, labels=self.class_names)
             class_report = classification_report(true_labels, predicted_labels, 
                                               labels=self.class_names, output_dict=True)
             
-            # Plot confusion matrix
+            # Plotting confusion matrix
             plt.figure(figsize=(10, 8))
             sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
                        xticklabels=self.class_names, yticklabels=self.class_names)
@@ -176,7 +175,6 @@ class MelanomaPredictor:
             plt.savefig('confusion_matrix.png')
             plt.close()
             
-            # Print metrics
             print("\nClassification Report:")
             print(classification_report(true_labels, predicted_labels, labels=self.class_names))
             
@@ -188,7 +186,7 @@ class MelanomaPredictor:
             print(f"False Negatives (Incorrect Benign): {fn}")
             print(f"True Positives (Correct Malignant): {tp}")
             
-            # Calculate additional metrics
+            # Calculation of additional metrics
             accuracy = (tp + tn) / (tp + tn + fp + fn)
             sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
             specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
@@ -215,7 +213,7 @@ def main():
     args = parser.parse_args()
     
     try:
-        # Initialize predictor
+        
         predictor = MelanomaPredictor(args.model)
         
         # Make prediction(s)

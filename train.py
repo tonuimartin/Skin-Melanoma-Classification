@@ -24,7 +24,7 @@ def load_training_state():
         return None
 
 def train(resume_from_checkpoint=False, force_start_phase=None):
-    # Create generators
+    # Creation of data generators
     train_datagen, test_datagen = create_data_generators()
     
     # Load data
@@ -49,7 +49,7 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
     else:
         checkpoint_path = 'best_model.h5'
     
-    # Load weights if checkpoint exists
+    # Loading of weights if checkpoint exists
     if os.path.exists(checkpoint_path):
         try:
             model.load_weights(checkpoint_path)
@@ -58,9 +58,9 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
             print(f"Error loading checkpoint: {e}")
             print("Starting training from scratch")
     
-    # First phase: Train only the top layers
+    # First phase: Training only the top layers
     if current_phase == 1:
-        # Ensure base model is frozen for first phase
+        # Freezing the base model for the first phase
         base_model.trainable = False
         
         model.compile(
@@ -72,7 +72,7 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
             metrics=['accuracy', tf.keras.metrics.AUC()]
         )
         
-        # Define callbacks
+        # Defination of callbacks
         callbacks = [
             tf.keras.callbacks.EarlyStopping(
                 monitor='val_accuracy',
@@ -102,22 +102,18 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
             validation_data=validation_generator,
             callbacks=callbacks
         )
-        
-        # Save state for potential resuming
         save_training_state(2, 'best_first_phase.h5')
         history2 = None
     
-    # Second phase: Fine-tune the model
+    # Second phase: Fine-tuning the model
     elif current_phase == 2:
-        # Unfreeze the base model
+        # Unfreezing the base model
         base_model.trainable = True
-        
-        # Freeze BatchNormalization layers
+
         for layer in base_model.layers:
             if isinstance(layer, tf.keras.layers.BatchNormalization):
                 layer.trainable = False
         
-        # Recompile with lower learning rate
         model.compile(
             optimizer=tf.keras.optimizers.Adam(
                 learning_rate=FINE_TUNING_LEARNING_RATE,
@@ -127,7 +123,7 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
             metrics=['accuracy', tf.keras.metrics.AUC()]
         )
         
-        # Define callbacks for second phase
+        # Defination of callbacks for second phase
         callbacks = [
             tf.keras.callbacks.EarlyStopping(
                 monitor='val_accuracy',
@@ -158,7 +154,7 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
         )
         history1 = None
         
-        # Save final model
+        # Saving final model
         save_training_state(3, 'best_model.h5')
     else:
         raise ValueError("Invalid training phase")
@@ -171,7 +167,7 @@ if __name__ == "__main__":
         resume_from_checkpoint=True  # You can set this to False if you want to start from scratch
     )
     
-    # Save model for mobile deployment with optimization
+    # Saving model in tflite format for mobile deployment with optimization
     try:
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
         converter.optimizations = [tf.lite.Optimize.DEFAULT]

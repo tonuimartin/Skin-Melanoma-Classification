@@ -1,4 +1,3 @@
-# evaluate.py
 import tensorflow as tf
 from data_loader import create_data_generators, load_data
 import numpy as np
@@ -6,26 +5,25 @@ from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
 
 def evaluate_model(model):
-    # Create generators
+    # Creating data generators
     train_datagen, test_datagen = create_data_generators()
     
-    # Get test generator
+    # Getting test generator
     _, _, test_generator = load_data(train_datagen, test_datagen)
     
-    # Evaluate the model
+    # Evaluation of the model
     test_loss, test_accuracy, test_auc = model.evaluate(test_generator)
     print(f'Test accuracy: {test_accuracy:.4f}')
     print(f'Test AUC: {test_auc:.4f}')
     
-    # Generate predictions for ROC curve
+    # Generating predictions for ROC curve
     predictions = model.predict(test_generator)
     true_labels = test_generator.classes
     
-    # Calculate ROC curve
     fpr, tpr, _ = roc_curve(true_labels, predictions)
     roc_auc = auc(fpr, tpr)
     
-    # Plot ROC curve
+    # Plotting ROC curve
     plt.figure()
     plt.plot(fpr, tpr, color='darkorange', lw=2, 
              label=f'ROC curve (AUC = {roc_auc:.2f})')
@@ -40,6 +38,7 @@ def evaluate_model(model):
     plt.close()
 
 if __name__ == "__main__":
-    # Load the trained model
+
+    # Loading the trained model
     model = tf.keras.models.load_model('best_model.h5')
     evaluate_model(model)

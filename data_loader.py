@@ -11,10 +11,10 @@ def create_data_generators():
         zoom_range=ZOOM_RANGE,
         horizontal_flip=HORIZONTAL_FLIP,
         vertical_flip=VERTICAL_FLIP,
-        fill_mode='reflect',  # Changed to reflect for better border handling
+        fill_mode='reflect',  
         brightness_range=BRIGHTNESS_RANGE,
         validation_split=VALIDATION_SPLIT,
-        preprocessing_function=None  # Can add custom preprocessing if needed
+        preprocessing_function=None  
     )
     
     test_datagen = ImageDataGenerator(rescale=1./255)
@@ -45,7 +45,7 @@ def load_data(train_datagen, test_datagen):
         target_size=(IMG_HEIGHT, IMG_WIDTH),
         batch_size=BATCH_SIZE,
         class_mode='binary',
-        shuffle=False  # No shuffling for test data
+        shuffle=False  
     )
     
     return train_generator, validation_generator, test_generator

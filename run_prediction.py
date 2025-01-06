@@ -1,11 +1,9 @@
 from predict import MelanomaPredictor
 
-# Change these paths to your image and folder paths
-SINGLE_IMAGE_PATH = "C:/Users/marti/Desktop/ICS 4.2/Project/archive/test/Malignant/5616.jpg"    # Change this to your image path
-BATCH_FOLDER_PATH = "C:/Users/marti/Desktop/ICS 4.2/Project/archive/test/Malignant"         # Change this to your folder path
-TEST_DIRECTORY_PATH = "C:/Users/marti/Desktop/ICS 4.2/Project/archive/test"    # Change this to your test directory containing benign and malignant folders
-MODEL_PATH = "best_model.h5"                        # Change this if your model has a different name
-
+SINGLE_IMAGE_PATH = "C:/Users/marti/Desktop/ICS 4.2/Project/archive/test/Malignant/5616.jpg"    # Path for prediction of a single image
+BATCH_FOLDER_PATH = "C:/Users/marti/Desktop/ICS 4.2/Project/archive/test/Malignant"         # Path for prediction for a single directory i.e Malignant or Benign 
+TEST_DIRECTORY_PATH = "C:/Users/marti/Desktop/ICS 4.2/Project/archive/test"    # Path for prediction for entire test
+MODEL_PATH = "best_model.h5"                        
 def run_single_prediction(predictor):
     """Run prediction on a single image"""
     print("\n=== Single Image Prediction ===")
@@ -46,7 +44,7 @@ def run_evaluation(predictor):
             
         print("\nConfusion matrix has been saved as 'confusion_matrix.png'")
         
-        # Print some key metrics from the classification report
+        # Key metrics from the classification report
         print("\n--- Key Metrics ---")
         print(f"Overall Accuracy: {class_report['accuracy']:.4f}")
         print("\nPer-Class Metrics:")

@@ -5,17 +5,16 @@ from keras.applications import ResNet50V2  # Using ResNet50V2 for better perform
 from config import *
 
 def create_model():
-    # Use ResNet50V2 instead of ResNet50
+    # Use ResNet50V2 as the base model
     base_model = ResNet50V2(
         weights='imagenet',
         include_top=False,
         input_shape=(IMG_HEIGHT, IMG_WIDTH, 3)
     )
     
-    # Initially freeze base model
+    # Initially freeze the base model
     base_model.trainable = False
     
-    # Create model with more sophisticated head
     inputs = tf.keras.Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3))
     x = base_model(inputs, training=False)
     x = layers.GlobalAveragePooling2D()(x)
