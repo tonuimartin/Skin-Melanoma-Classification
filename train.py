@@ -4,6 +4,34 @@ from model import create_model
 import tensorflow as tf
 import os
 import json
+import matplotlib.pyplot as plt
+
+def save_training_metrics(history, phase):
+    """Save training metrics and create plots."""
+    # Save metrics to JSON
+    metrics_file = f'phase_{phase}_metrics.json'
+    with open(metrics_file, 'w') as f:
+        json.dump(history.history, f)
+    
+    plt.figure()
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title(f'Phase {phase} Model Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.savefig(f'phase_{phase}_accuracy.png')
+    plt.close()
+    
+    plt.figure()
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title(f'Phase {phase} Model Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig(f'phase_{phase}_loss.png')
+    plt.close()
 
 def save_training_state(phase, checkpoint_path):
     """Save the current training phase to a state file."""
@@ -100,6 +128,7 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
             validation_data=validation_generator,
             callbacks=callbacks
         )
+        save_training_metrics(history1, 1)  # Save metrics for phase 1
         save_training_state(2, 'best_first_phase.h5')
         history2 = None
     
@@ -150,6 +179,7 @@ def train(resume_from_checkpoint=False, force_start_phase=None):
             validation_data=validation_generator,
             callbacks=callbacks
         )
+        save_training_metrics(history2, 2)  # Save metrics for phase 2
         history1 = None
         
         # Saving final model
