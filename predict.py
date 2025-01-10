@@ -7,7 +7,7 @@ import argparse
 from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
 
 class MelanomaPredictor:
     def __init__(self, model_path='best_model.h5'):
@@ -130,6 +130,7 @@ class MelanomaPredictor:
         """
         true_labels = []
         predicted_labels = []
+        raw_predictions = []
         results_list = []
         
         try:
@@ -153,15 +154,35 @@ class MelanomaPredictor:
                         
                         true_labels.append(class_name)
                         predicted_labels.append(result['predicted_class'])
+                        raw_predictions.append(result['raw_prediction'])
                         
                     except Exception as e:
                         print(f"Warning: Failed to process {image_path}: {str(e)}")
                         continue
             
+            # Convert labels to binary for ROC curve
+            y_true = [1 if label == 'malignant' else 0 for label in true_labels]
+            
+            # Calculate ROC curve and AUC
+            fpr, tpr, _ = roc_curve(y_true, raw_predictions)
+            roc_auc = auc(fpr, tpr)
+            
+            # Plot ROC curve
+            plt.figure(figsize=(10, 8))
+            plt.plot(fpr, tpr, color='darkorange', lw=2, 
+                    label=f'ROC curve (AUC = {roc_auc:.2f})')
+            plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curve')
+            plt.legend(loc="lower right")
+            plt.savefig('roc_curve.png')
+            plt.close()
+            
             # Calculation of metrics
             conf_matrix = confusion_matrix(true_labels, predicted_labels, labels=self.class_names)
-            class_report = classification_report(true_labels, predicted_labels, 
-                                              labels=self.class_names, output_dict=True)
             
             # Plotting confusion matrix
             plt.figure(figsize=(10, 8))
@@ -173,28 +194,35 @@ class MelanomaPredictor:
             plt.savefig('confusion_matrix.png')
             plt.close()
             
-            print("\nClassification Report:")
-            print(classification_report(true_labels, predicted_labels, labels=self.class_names))
-            
-            # Printing of confusion matrix interpretation
+            # Calculate combined metrics
             tn, fp, fn, tp = conf_matrix.ravel()
-            print("\nConfusion Matrix Interpretation:")
+            
+            accuracy = (tp + tn) / (tp + tn + fp + fn)
+            sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+            specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+            f1_score = 2 * (precision * sensitivity) / (precision + sensitivity) if (precision + sensitivity) > 0 else 0
+            
+            print("\nOverall Model Metrics:")
+            print(f"Accuracy: {accuracy:.4f}")
+            print(f"Sensitivity/Recall: {sensitivity:.4f}")
+            print(f"Specificity: {specificity:.4f}")
+            print(f"Precision: {precision:.4f}")
+            print(f"F1 Score: {f1_score:.4f}")
+            print(f"AUC-ROC: {roc_auc:.4f}")
+            
+            print("\nConfusion Matrix Breakdown:")
             print(f"True Negatives (Correct Benign): {tn}")
             print(f"False Positives (Incorrect Malignant): {fp}")
             print(f"False Negatives (Incorrect Benign): {fn}")
             print(f"True Positives (Correct Malignant): {tp}")
             
-            # Calculation of additional metrics
-            accuracy = (tp + tn) / (tp + tn + fp + fn)
-            sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
-            specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
-            
-            print("\nAdditional Metrics:")
-            print(f"Accuracy: {accuracy:.4f}")
-            print(f"Sensitivity (True Positive Rate): {sensitivity:.4f}")
-            print(f"Specificity (True Negative Rate): {specificity:.4f}")
-            
-            return results_list, class_report, conf_matrix
+            return results_list, conf_matrix, {'accuracy': accuracy, 
+                                             'sensitivity': sensitivity,
+                                             'specificity': specificity,
+                                             'precision': precision,
+                                             'f1_score': f1_score,
+                                             'auc_roc': roc_auc}
             
         except Exception as e:
             raise Exception(f"Error evaluating test directory: {str(e)}")
@@ -211,7 +239,6 @@ def main():
     args = parser.parse_args()
     
     try:
-        
         predictor = MelanomaPredictor(args.model)
         
         if args.evaluate:

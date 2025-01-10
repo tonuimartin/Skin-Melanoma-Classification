@@ -13,6 +13,7 @@ def save_training_metrics(history, phase):
     with open(metrics_file, 'w') as f:
         json.dump(history.history, f)
     
+
     plt.figure()
     plt.plot(history.history['accuracy'], label='Training Accuracy')
     plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
@@ -23,6 +24,7 @@ def save_training_metrics(history, phase):
     plt.savefig(f'phase_{phase}_accuracy.png')
     plt.close()
     
+    # Create loss plot
     plt.figure()
     plt.plot(history.history['loss'], label='Training Loss')
     plt.plot(history.history['val_loss'], label='Validation Loss')
